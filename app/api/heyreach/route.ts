@@ -1,68 +1,50 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const start = searchParams.get("start");
-  const end = searchParams.get("end");
-
+export async function GET() {
   if (!process.env.HEYREACH_API_KEY) {
     return NextResponse.json({ demo: true });
   }
 
   try {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+
     const res = await fetch(
-      "https://api.heyreach.io/api/public/campaign/GetAllCampaigns",
+      "https://api.heyreach.io/api/public/analytics/GetOverallStats",
       {
         method: "POST",
         headers: {
           "X-API-KEY": process.env.HEYREACH_API_KEY,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          accountIds: [],
+          campaignIds: [],
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        }),
       }
     );
 
-    if (!res.ok) return NextResponse.json({ demo: true });
+    if (!res.ok) {
+      const err = await res.text();
+      return NextResponse.json({ demo: true, error: err });
+    }
 
     const data = await res.json();
-    const campaigns = data?.items || data?.campaigns || data || [];
-
-    let totalInvitesSent = 0;
-    let totalInvitesAccepted = 0;
-    let totalReplies = 0;
-    const chartData: Record<string, { invitesSent: number; invitesAccepted: number; repliesReceived: number }> = {};
-
-    for (const campaign of campaigns) {
-      const statsRes = await fetch(
-        `https://api.heyreach.io/api/public/campaign/GetCampaignStats`,
-        {
-          method: "POST",
-          headers: {
-            "X-API-KEY": process.env.HEYREACH_API_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ campaignId: campaign.id }),
-        }
-      );
-
-      if (statsRes.ok) {
-        const stats = await statsRes.json();
-        totalInvitesSent += stats?.totalInvitesSent || stats?.invitesSent || 0;
-        totalInvitesAccepted += stats?.totalInvitesAccepted || stats?.invitesAccepted || 0;
-        totalReplies += stats?.totalReplies || stats?.repliesReceived || 0;
-      }
-    }
 
     return NextResponse.json({
       demo: false,
+      raw: data,
       totals: {
-        invitesSent: totalInvitesSent,
-        invitesAccepted: totalInvitesAccepted,
-        repliesReceived: totalReplies,
+        invitesSent: data?.connectionRequestsSent ?? data?.invitesSent ?? data?.totalInvitesSent ?? 0,
+        invitesAccepted: data?.connectionRequestsAccepted ?? data?.invitesAccepted ?? data?.totalConnected ?? 0,
+        repliesReceived: data?.replies ?? data?.repliesReceived ?? data?.totalReplies ?? 0,
       },
-      chartData: Object.entries(chartData).map(([date, v]) => ({ date, ...v })),
     });
-  } catch {
-    return NextResponse.json({ demo: true });
+  } catch (e: any) {
+    return NextResponse.json({ demo: true, error: e.message });
   }
 }
