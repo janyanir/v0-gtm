@@ -3,47 +3,52 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   if (!process.env.HEYREACH_API_KEY) {
-    return NextResponse.json({ demo: true });
+    return NextResponse.json({ demo: true, reason: "no key" });
   }
 
   try {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 30);
+    // First test if key is valid
+    const authRes = await fetch(
+      "https://api.heyreach.io/api/public/auth/CheckApiKey",
+      {
+        method: "GET",
+        headers: {
+          "X-API-KEY": process.env.HEYREACH_API_KEY,
+        },
+      }
+    );
 
-    const res = await fetch(
-      "https://api.heyreach.io/api/public/analytics/GetOverallStats",
+    if (!authRes.ok) {
+      return NextResponse.json({ 
+        demo: true, 
+        reason: "auth failed",
+        status: authRes.status,
+        key_prefix: process.env.HEYREACH_API_KEY.substring(0, 8)
+      });
+    }
+
+    // Get all campaigns
+    const campRes = await fetch(
+      "https://api.heyreach.io/api/public/campaign/GetAllCampaigns",
       {
         method: "POST",
         headers: {
           "X-API-KEY": process.env.HEYREACH_API_KEY,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          accountIds: [],
-          campaignIds: [],
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-        }),
+        body: JSON.stringify({ offset: 0, limit: 50 }),
       }
     );
 
-    if (!res.ok) {
-      const err = await res.text();
-      return NextResponse.json({ demo: true, error: err });
-    }
-
-    const data = await res.json();
+    const campData = await campRes.json();
 
     return NextResponse.json({
       demo: false,
-      raw: data,
-      totals: {
-        invitesSent: data?.connectionRequestsSent ?? data?.invitesSent ?? data?.totalInvitesSent ?? 0,
-        invitesAccepted: data?.connectionRequestsAccepted ?? data?.invitesAccepted ?? data?.totalConnected ?? 0,
-        repliesReceived: data?.replies ?? data?.repliesReceived ?? data?.totalReplies ?? 0,
-      },
+      authStatus: authRes.status,
+      campaignStatus: campRes.status,
+      campaigns: campData,
     });
+
   } catch (e: any) {
     return NextResponse.json({ demo: true, error: e.message });
   }
