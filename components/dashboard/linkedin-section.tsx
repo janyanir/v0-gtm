@@ -12,11 +12,13 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { MetricCard } from "./metric-card";
 import {
   getFilteredLinkedInMetrics,
   aggregateLinkedInMetricsByDate,
 } from "@/lib/mock-data";
+import { useConnectionState } from "@/lib/connection-store";
 import { format } from "date-fns";
 
 interface LinkedInSectionProps {
@@ -32,6 +34,9 @@ export function LinkedInSection({
   onViewReplies,
   isLoading = false,
 }: LinkedInSectionProps) {
+  const { state } = useConnectionState();
+  const isConnected = state.heyReach.status === "connected";
+
   const metrics = useMemo(() => {
     return getFilteredLinkedInMetrics(projectId, dateRange);
   }, [projectId, dateRange]);
@@ -69,7 +74,18 @@ export function LinkedInSection({
 
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-semibold text-slate-900">LinkedIn Outreach</h2>
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-semibold text-slate-900">LinkedIn Outreach</h2>
+        {isConnected ? (
+          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+            HeyReach Connected
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700">
+            Demo Data
+          </Badge>
+        )}
+      </div>
 
       {/* Metric Cards */}
       <div className="grid gap-4 md:grid-cols-3">

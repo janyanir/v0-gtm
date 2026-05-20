@@ -12,11 +12,13 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { MetricCard } from "./metric-card";
 import {
   getFilteredEmailMetrics,
   aggregateEmailMetricsByDate,
 } from "@/lib/mock-data";
+import { useConnectionState } from "@/lib/connection-store";
 import { format } from "date-fns";
 
 interface EmailSectionProps {
@@ -32,6 +34,9 @@ export function EmailSection({
   onViewReplies,
   isLoading = false,
 }: EmailSectionProps) {
+  const { state } = useConnectionState();
+  const isConnected = state.smartlead.status === "connected";
+
   const metrics = useMemo(() => {
     return getFilteredEmailMetrics(projectId, dateRange);
   }, [projectId, dateRange]);
@@ -63,7 +68,18 @@ export function EmailSection({
 
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-semibold text-slate-900">Email Outreach</h2>
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-semibold text-slate-900">Email Outreach</h2>
+        {isConnected ? (
+          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+            Smartlead Connected
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700">
+            Demo Data
+          </Badge>
+        )}
+      </div>
 
       {/* Metric Cards */}
       <div className="grid gap-4 md:grid-cols-2">

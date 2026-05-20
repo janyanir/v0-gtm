@@ -18,7 +18,7 @@ export function DemoBanner() {
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           <span className="text-sm text-emerald-800">
-            <strong>Connected</strong> — HeyReach and Smartlead integrations are active
+            <strong>Connected</strong> — HeyReach and Smartlead integrations configured. In production, data will sync from your accounts.
           </span>
         </div>
         <button
