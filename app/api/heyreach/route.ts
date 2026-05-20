@@ -7,7 +7,7 @@ export async function GET() {
   }
 
   try {
-    // First test if key is valid
+    // Step 1: Check if API key is valid
     const authRes = await fetch(
       "https://api.heyreach.io/api/public/auth/CheckApiKey",
       {
@@ -18,35 +18,11 @@ export async function GET() {
       }
     );
 
-    if (!authRes.ok) {
-      return NextResponse.json({ 
-        demo: true, 
-        reason: "auth failed",
-        status: authRes.status,
-        key_prefix: process.env.HEYREACH_API_KEY.substring(0, 8)
-      });
-    }
-
-    // Get all campaigns
-    const campRes = await fetch(
-      "https://api.heyreach.io/api/public/campaign/GetAllCampaigns",
-      {
-        method: "POST",
-        headers: {
-          "X-API-KEY": process.env.HEYREACH_API_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ offset: 0, limit: 50 }),
-      }
-    );
-
-    const campData = await campRes.json();
-
     return NextResponse.json({
-      demo: false,
       authStatus: authRes.status,
-      campaignStatus: campRes.status,
-      campaigns: campData,
+      authOk: authRes.ok,
+      authBody: await authRes.text(),
+      keyPrefix: process.env.HEYREACH_API_KEY.substring(0, 8),
     });
 
   } catch (e: any) {
