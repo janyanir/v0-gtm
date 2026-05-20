@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -37,13 +37,33 @@ export function LinkedInSection({
   const { state } = useConnectionState();
   const isConnected = state.heyReach.status === "connected";
 
+  const [liveData, setLiveData] = useState<{
+    invitesSent: number;
+    invitesAccepted: number;
+    repliesReceived: number;
+  } | null>(null);
+
+  const [isFetching, setIsFetching] = useState(false);
+
+  useEffect(() => {
+    if (isConnected) {
+      setIsFetching(true);
+      fetch("/api/heyreach")
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data.demo) setLiveData(data.totals);
+        })
+        .catch(() => {})
+        .finally(() => setIsFetching(false));
+    }
+  }, [isConnected]);
+
   const metrics = useMemo(() => {
     return getFilteredLinkedInMetrics(projectId, dateRange);
   }, [projectId, dateRange]);
 
   const aggregatedData = useMemo(() => {
     const data = aggregateLinkedInMetricsByDate(metrics);
-    // Limit to reasonable number of data points for chart
     if (data.length > 30) {
       const step = Math.ceil(data.length / 30);
       return data.filter((_, i) => i % step === 0);
@@ -51,16 +71,14 @@ export function LinkedInSection({
     return data;
   }, [metrics]);
 
-  const totals = useMemo(() => {
-    return metrics.reduce(
-      (acc, m) => ({
-        invitesSent: acc.invitesSent + m.invitesSent,
-        invitesAccepted: acc.invitesAccepted + m.invitesAccepted,
-        repliesReceived: acc.repliesReceived + m.repliesReceived,
-      }),
-      { invitesSent: 0, invitesAccepted: 0, repliesReceived: 0 }
-    );
-  }, [metrics]);
+  const totals = liveData ?? metrics.reduce(
+    (acc, m) => ({
+      invitesSent: acc.invitesSent + m.invitesSent,
+      invitesAccepted: acc.invitesAccepted + m.invitesAccepted,
+      repliesReceived: acc.repliesReceived + m.repliesReceived,
+    }),
+    { invitesSent: 0, invitesAccepted: 0, repliesReceived: 0 }
+  );
 
   const acceptRate =
     totals.invitesSent > 0
@@ -87,20 +105,19 @@ export function LinkedInSection({
         )}
       </div>
 
-      {/* Metric Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <MetricCard
           title="Connection Invites Sent"
           value={totals.invitesSent.toLocaleString()}
           colorClass="text-blue-600"
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
         />
         <MetricCard
           title="Invites Accepted"
           value={totals.invitesAccepted.toLocaleString()}
           subtitle={`${acceptRate}% of sent`}
           colorClass="text-emerald-600"
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
         />
         <MetricCard
           title="Replies Received"
@@ -108,11 +125,10 @@ export function LinkedInSection({
           subtitle={`${replyRate}% of accepted`}
           colorClass="text-amber-600"
           onViewReplies={onViewReplies}
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
         />
       </div>
 
-      {/* Chart */}
       <Card className="border-slate-200 bg-white">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-slate-500">
@@ -120,7 +136,7 @@ export function LinkedInSection({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isLoading || isFetching ? (
             <Skeleton className="h-[300px] w-full bg-slate-200" />
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -144,24 +160,9 @@ export function LinkedInSection({
                   }
                 />
                 <Legend />
-                <Bar
-                  dataKey="invitesSent"
-                  name="Invites Sent"
-                  fill="#2563eb"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="invitesAccepted"
-                  name="Accepted"
-                  fill="#10b981"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="repliesReceived"
-                  name="Replies"
-                  fill="#f59e0b"
-                  radius={[4, 4, 0, 0]}
-                />
+                <Bar dataKey="invitesSent" name="Invites Sent" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="invitesAccepted" name="Accepted" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="repliesReceived" name="Replies" fill="#f59e0b" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
