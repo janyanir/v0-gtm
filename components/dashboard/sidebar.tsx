@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FolderKanban,
-  Megaphone,
-  Users,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,8 +12,6 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/projects", label: "Projects", icon: FolderKanban },
-  { href: "/campaigns", label: "Campaigns", icon: Megaphone },
-  { href: "/leads", label: "Leads", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

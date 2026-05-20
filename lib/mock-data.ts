@@ -50,6 +50,16 @@ export interface EmailReply {
   fullMessage: string;
 }
 
+export interface ProjectUpdate {
+  id: string;
+  projectId: string;
+  date: string;
+  title: string;
+  description: string;
+  type: "milestone" | "note" | "meeting" | "decision";
+  source: "google_sheets" | "manual";
+}
+
 // Mock Projects
 export const projects: Project[] = [
   {
@@ -350,6 +360,94 @@ export const linkedInMetrics = generateLinkedInMetrics();
 export const emailMetrics = generateEmailMetrics();
 export const linkedInReplies = generateLinkedInReplies();
 export const emailReplies = generateEmailReplies();
+
+// Mock Project Updates
+export const projectUpdates: ProjectUpdate[] = [
+  // Enterprise SaaS Outreach updates
+  {
+    id: "update-1",
+    projectId: "proj-1",
+    date: "2026-05-18",
+    title: "Q2 Target Accounts Finalized",
+    description: "Finalized list of 150 enterprise accounts to target. Focus on Fortune 500 companies in tech and finance sectors.",
+    type: "milestone",
+    source: "google_sheets",
+  },
+  {
+    id: "update-2",
+    projectId: "proj-1",
+    date: "2026-05-15",
+    title: "Campaign Performance Review",
+    description: "LinkedIn acceptance rate up 12% after messaging optimization. Email open rates steady at 45%.",
+    type: "meeting",
+    source: "manual",
+  },
+  {
+    id: "update-3",
+    projectId: "proj-1",
+    date: "2026-05-10",
+    title: "New ICP Criteria Added",
+    description: "Added company size filter (500+ employees) and tech stack requirements to improve lead quality.",
+    type: "decision",
+    source: "google_sheets",
+  },
+  // Startup Growth Campaign updates
+  {
+    id: "update-4",
+    projectId: "proj-2",
+    date: "2026-05-19",
+    title: "Series A/B Focus Shift",
+    description: "Pivoting to target Series A and B startups exclusively. Seed-stage response rates too low.",
+    type: "decision",
+    source: "manual",
+  },
+  {
+    id: "update-5",
+    projectId: "proj-2",
+    date: "2026-05-14",
+    title: "New Messaging Templates",
+    description: "Deployed 3 new LinkedIn message templates focusing on growth pain points. A/B testing in progress.",
+    type: "note",
+    source: "google_sheets",
+  },
+  {
+    id: "update-6",
+    projectId: "proj-2",
+    date: "2026-05-08",
+    title: "CTO Outreach Launch",
+    description: "Launched dedicated CTO outreach campaign. Initial results showing 2x higher engagement than founder campaigns.",
+    type: "milestone",
+    source: "manual",
+  },
+  // Agency Partner Program updates
+  {
+    id: "update-7",
+    projectId: "proj-3",
+    date: "2026-05-17",
+    title: "Partner Tier Structure Defined",
+    description: "Established Gold, Silver, and Bronze partner tiers with corresponding benefits and requirements.",
+    type: "milestone",
+    source: "google_sheets",
+  },
+  {
+    id: "update-8",
+    projectId: "proj-3",
+    date: "2026-05-12",
+    title: "Agency Event Attendance",
+    description: "Scheduled attendance at 3 agency networking events in June. Will collect leads for follow-up campaigns.",
+    type: "meeting",
+    source: "manual",
+  },
+  {
+    id: "update-9",
+    projectId: "proj-3",
+    date: "2026-05-05",
+    title: "Referral Program Launch",
+    description: "Soft-launched referral incentive program with existing agency partners. 15% commission on referred deals.",
+    type: "decision",
+    source: "google_sheets",
+  },
+];
 
 // Helper functions
 export function getFilteredLinkedInMetrics(
