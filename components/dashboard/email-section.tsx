@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -37,13 +37,32 @@ export function EmailSection({
   const { state } = useConnectionState();
   const isConnected = state.smartlead.status === "connected";
 
+  const [liveData, setLiveData] = useState<{
+    emailsSent: number;
+    repliesReceived: number;
+  } | null>(null);
+
+  const [isFetching, setIsFetching] = useState(false);
+
+  useEffect(() => {
+    if (isConnected) {
+      setIsFetching(true);
+      fetch("/api/smartlead")
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data.demo) setLiveData(data.totals);
+        })
+        .catch(() => {})
+        .finally(() => setIsFetching(false));
+    }
+  }, [isConnected]);
+
   const metrics = useMemo(() => {
     return getFilteredEmailMetrics(projectId, dateRange);
   }, [projectId, dateRange]);
 
   const aggregatedData = useMemo(() => {
     const data = aggregateEmailMetricsByDate(metrics);
-    // Limit to reasonable number of data points for chart
     if (data.length > 30) {
       const step = Math.ceil(data.length / 30);
       return data.filter((_, i) => i % step === 0);
@@ -51,15 +70,13 @@ export function EmailSection({
     return data;
   }, [metrics]);
 
-  const totals = useMemo(() => {
-    return metrics.reduce(
-      (acc, m) => ({
-        emailsSent: acc.emailsSent + m.emailsSent,
-        repliesReceived: acc.repliesReceived + m.repliesReceived,
-      }),
-      { emailsSent: 0, repliesReceived: 0 }
-    );
-  }, [metrics]);
+  const totals = liveData ?? metrics.reduce(
+    (acc, m) => ({
+      emailsSent: acc.emailsSent + m.emailsSent,
+      repliesReceived: acc.repliesReceived + m.repliesReceived,
+    }),
+    { emailsSent: 0, repliesReceived: 0 }
+  );
 
   const replyRate =
     totals.emailsSent > 0
@@ -81,13 +98,12 @@ export function EmailSection({
         )}
       </div>
 
-      {/* Metric Cards */}
       <div className="grid gap-4 md:grid-cols-2">
         <MetricCard
           title="Emails Sent"
           value={totals.emailsSent.toLocaleString()}
           colorClass="text-blue-600"
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
         />
         <MetricCard
           title="Replies Received"
@@ -95,11 +111,10 @@ export function EmailSection({
           subtitle={`${replyRate}% reply rate`}
           colorClass="text-emerald-600"
           onViewReplies={onViewReplies}
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
         />
       </div>
 
-      {/* Chart */}
       <Card className="border-slate-200 bg-white">
         <CardHeader>
           <CardTitle className="text-sm font-medium text-slate-500">
@@ -107,7 +122,7 @@ export function EmailSection({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isLoading || isFetching ? (
             <Skeleton className="h-[300px] w-full bg-slate-200" />
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -131,18 +146,8 @@ export function EmailSection({
                   }
                 />
                 <Legend />
-                <Bar
-                  dataKey="emailsSent"
-                  name="Emails Sent"
-                  fill="#2563eb"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="repliesReceived"
-                  name="Replies"
-                  fill="#10b981"
-                  radius={[4, 4, 0, 0]}
-                />
+                <Bar dataKey="emailsSent" name="Emails Sent" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="repliesReceived" name="Replies" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
