@@ -63,52 +63,52 @@ export function EmailSection({
 
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-semibold text-white">Email Outreach</h2>
+      <h2 className="text-xl font-semibold text-slate-900">Email Outreach</h2>
 
       {/* Metric Cards */}
       <div className="grid gap-4 md:grid-cols-2">
         <MetricCard
           title="Emails Sent"
           value={totals.emailsSent.toLocaleString()}
-          colorClass="text-emerald-400"
+          colorClass="text-blue-600"
           isLoading={isLoading}
         />
         <MetricCard
           title="Replies Received"
           value={totals.repliesReceived.toLocaleString()}
           subtitle={`${replyRate}% reply rate`}
-          colorClass="text-teal-400"
+          colorClass="text-emerald-600"
           onViewReplies={onViewReplies}
           isLoading={isLoading}
         />
       </div>
 
       {/* Chart */}
-      <Card className="border-slate-700 bg-slate-800">
+      <Card className="border-slate-200 bg-white">
         <CardHeader>
-          <CardTitle className="text-sm font-medium text-slate-400">
+          <CardTitle className="text-sm font-medium text-slate-500">
             Email Activity Over Time
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <Skeleton className="h-[300px] w-full bg-slate-700" />
+            <Skeleton className="h-[300px] w-full bg-slate-200" />
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={aggregatedData}>
                 <XAxis
                   dataKey="date"
-                  stroke="#64748b"
+                  stroke="#94a3b8"
                   fontSize={12}
                   tickFormatter={(value) => format(new Date(value), "MMM d")}
                 />
-                <YAxis stroke="#64748b" fontSize={12} />
+                <YAxis stroke="#94a3b8" fontSize={12} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#1e293b",
-                    border: "1px solid #334155",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
                     borderRadius: "8px",
-                    color: "#fff",
+                    color: "#1e293b",
                   }}
                   labelFormatter={(value) =>
                     format(new Date(value), "MMM d, yyyy")
@@ -118,13 +118,13 @@ export function EmailSection({
                 <Bar
                   dataKey="emailsSent"
                   name="Emails Sent"
-                  fill="#10b981"
+                  fill="#2563eb"
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar
                   dataKey="repliesReceived"
                   name="Replies"
-                  fill="#14b8a6"
+                  fill="#10b981"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>

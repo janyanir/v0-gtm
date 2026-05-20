@@ -41,10 +41,10 @@ export function TopBar({
   setCustomDateRange,
 }: TopBarProps) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-700 bg-slate-800 px-6 py-4">
+    <div className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
       <div className="flex items-center gap-4">
         {/* View Toggle */}
-        <div className="flex rounded-lg bg-slate-700 p-1">
+        <div className="flex rounded-lg bg-slate-100 p-1">
           <Button
             variant="ghost"
             size="sm"
@@ -54,8 +54,8 @@ export function TopBar({
             }}
             className={
               viewMode === "consolidated"
-                ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
-                : "text-slate-300 hover:bg-slate-600 hover:text-white"
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }
           >
             Consolidated View
@@ -66,8 +66,8 @@ export function TopBar({
             onClick={() => setViewMode("project")}
             className={
               viewMode === "project"
-                ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
-                : "text-slate-300 hover:bg-slate-600 hover:text-white"
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }
           >
             Project View
@@ -80,15 +80,15 @@ export function TopBar({
             value={selectedProject || ""}
             onValueChange={(value) => setSelectedProject(value || null)}
           >
-            <SelectTrigger className="w-[220px] border-slate-600 bg-slate-700 text-white">
+            <SelectTrigger className="w-[220px] border-slate-300 bg-white text-slate-900">
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>
-            <SelectContent className="border-slate-600 bg-slate-700">
+            <SelectContent className="border-slate-200 bg-white">
               {projects.map((project) => (
                 <SelectItem
                   key={project.id}
                   value={project.id}
-                  className="text-white focus:bg-slate-600 focus:text-white"
+                  className="text-slate-900 focus:bg-slate-100 focus:text-slate-900"
                 >
                   {project.name}
                 </SelectItem>
@@ -100,15 +100,15 @@ export function TopBar({
 
       {/* Date Picker */}
       <div className="flex items-center gap-2">
-        <div className="flex rounded-lg bg-slate-700 p-1">
+        <div className="flex rounded-lg bg-slate-100 p-1">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setDateRange("7d")}
             className={
               dateRange === "7d"
-                ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
-                : "text-slate-300 hover:bg-slate-600 hover:text-white"
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }
           >
             Last 7D
@@ -119,8 +119,8 @@ export function TopBar({
             onClick={() => setDateRange("30d")}
             className={
               dateRange === "30d"
-                ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
-                : "text-slate-300 hover:bg-slate-600 hover:text-white"
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }
           >
             Last 30D
@@ -131,8 +131,8 @@ export function TopBar({
             onClick={() => setDateRange("90d")}
             className={
               dateRange === "90d"
-                ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
-                : "text-slate-300 hover:bg-slate-600 hover:text-white"
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }
           >
             Last 90D
@@ -144,8 +144,8 @@ export function TopBar({
                 size="sm"
                 className={
                   dateRange === "custom"
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
-                    : "text-slate-300 hover:bg-slate-600 hover:text-white"
+                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                    : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
                 }
               >
                 <Calendar className="mr-2 h-4 w-4" />
@@ -159,7 +159,7 @@ export function TopBar({
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-auto border-slate-600 bg-slate-700 p-0"
+              className="w-auto border-slate-200 bg-white p-0"
               align="end"
             >
               <CalendarComponent
@@ -172,7 +172,7 @@ export function TopBar({
                   }
                 }}
                 numberOfMonths={2}
-                className="text-white"
+                className="text-slate-900"
               />
             </PopoverContent>
           </Popover>

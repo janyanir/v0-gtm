@@ -56,12 +56,12 @@ export default function LeadsPage() {
     : uniqueLeads;
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-50">
       <Sidebar />
       <div className="ml-64">
-        <div className="border-b border-slate-700 bg-slate-800 px-6 py-4">
-          <h1 className="text-2xl font-semibold text-white">Leads</h1>
-          <p className="mt-1 text-sm text-slate-400">
+        <div className="border-b border-slate-200 bg-white px-6 py-4">
+          <h1 className="text-2xl font-semibold text-slate-900">Leads</h1>
+          <p className="mt-1 text-sm text-slate-500">
             View leads who have responded to your campaigns
           </p>
         </div>
@@ -73,19 +73,19 @@ export default function LeadsPage() {
                 placeholder="Search leads..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="border-slate-600 bg-slate-700 pl-10 text-white placeholder:text-slate-400"
+                className="border-slate-300 bg-white pl-10 text-slate-900 placeholder:text-slate-400"
               />
             </div>
 
-            <div className="rounded-lg border border-slate-700 bg-slate-800">
+            <div className="rounded-lg border border-slate-200 bg-white">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-700 hover:bg-slate-700/50">
-                    <TableHead className="text-slate-300">Name</TableHead>
-                    <TableHead className="text-slate-300">Company</TableHead>
-                    <TableHead className="text-slate-300">Campaign</TableHead>
-                    <TableHead className="text-slate-300">Source</TableHead>
-                    <TableHead className="text-slate-300">Last Activity</TableHead>
+                  <TableRow className="border-slate-200 hover:bg-slate-50">
+                    <TableHead className="text-slate-600">Name</TableHead>
+                    <TableHead className="text-slate-600">Company</TableHead>
+                    <TableHead className="text-slate-600">Campaign</TableHead>
+                    <TableHead className="text-slate-600">Source</TableHead>
+                    <TableHead className="text-slate-600">Last Activity</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -93,7 +93,7 @@ export default function LeadsPage() {
                     <TableRow>
                       <TableCell
                         colSpan={5}
-                        className="py-12 text-center text-slate-400"
+                        className="py-12 text-center text-slate-500"
                       >
                         {search ? "No leads found matching your search" : "No leads yet"}
                       </TableCell>
@@ -102,15 +102,15 @@ export default function LeadsPage() {
                     filteredLeads.map((lead) => (
                       <TableRow
                         key={lead.id}
-                        className="border-slate-700 hover:bg-slate-700/50"
+                        className="border-slate-200 hover:bg-slate-50"
                       >
-                        <TableCell className="font-medium text-white">
+                        <TableCell className="font-medium text-slate-900">
                           {lead.name}
                         </TableCell>
-                        <TableCell className="text-slate-300">
+                        <TableCell className="text-slate-600">
                           {lead.company}
                         </TableCell>
-                        <TableCell className="text-slate-300">
+                        <TableCell className="text-slate-600">
                           {lead.campaign}
                         </TableCell>
                         <TableCell>
@@ -118,14 +118,14 @@ export default function LeadsPage() {
                             variant="secondary"
                             className={
                               lead.source === "linkedin"
-                                ? "bg-indigo-500/20 text-indigo-300"
-                                : "bg-emerald-500/20 text-emerald-300"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-emerald-100 text-emerald-700"
                             }
                           >
                             {lead.source === "linkedin" ? "LinkedIn" : "Email"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-slate-400">
+                        <TableCell className="text-slate-500">
                           {format(new Date(lead.date), "MMM d, yyyy")}
                         </TableCell>
                       </TableRow>
