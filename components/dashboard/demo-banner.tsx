@@ -3,13 +3,16 @@
 import { AlertTriangle, X, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import { useConnectionState } from "@/lib/connection-store";
+import { useApiStatus } from "@/lib/api-hooks";
 
 export function DemoBanner() {
   const [dismissed, setDismissed] = useState(false);
-  const { isFullyConnected, hasAnyConnection, state } = useConnectionState();
+  const { heyreachConfigured, smartleadConfigured, isLoading } = useApiStatus();
 
-  if (dismissed) return null;
+  if (dismissed || isLoading) return null;
+
+  const isFullyConnected = heyreachConfigured && smartleadConfigured;
+  const hasAnyConnection = heyreachConfigured || smartleadConfigured;
 
   // Show success banner if fully connected
   if (isFullyConnected) {
@@ -18,7 +21,7 @@ export function DemoBanner() {
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           <span className="text-sm text-emerald-800">
-            <strong>Connected</strong> — HeyReach and Smartlead integrations configured. In production, data will sync from your accounts.
+            <strong>Connected</strong> — HeyReach and Smartlead API keys configured. Live data is being fetched.
           </span>
         </div>
         <button
@@ -37,13 +40,13 @@ export function DemoBanner() {
     const connected = [];
     const missing = [];
     
-    if (state.heyReach.status === "connected") {
+    if (heyreachConfigured) {
       connected.push("HeyReach");
     } else {
       missing.push("HeyReach");
     }
     
-    if (state.smartlead.status === "connected") {
+    if (smartleadConfigured) {
       connected.push("Smartlead");
     } else {
       missing.push("Smartlead");
@@ -54,11 +57,8 @@ export function DemoBanner() {
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-blue-600" />
           <span className="text-sm text-blue-800">
-            <strong>{connected.join(", ")}</strong> connected —{" "}
-            <Link href="/settings" className="underline hover:text-blue-900">
-              connect {missing.join(", ")}
-            </Link>{" "}
-            to see all data
+            <strong>{connected.join(", ")}</strong> connected — Add{" "}
+            {missing.join(", ")} API key in environment variables to see all data
           </span>
         </div>
         <button
@@ -72,17 +72,13 @@ export function DemoBanner() {
     );
   }
 
-  // Show demo mode banner
+  // Show demo mode banner when no API keys configured
   return (
     <div className="flex items-center justify-between bg-amber-50 border border-amber-200 px-4 py-2">
       <div className="flex items-center gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-600" />
         <span className="text-sm text-amber-800">
-          <strong>Demo mode</strong> — add API keys in{" "}
-          <Link href="/settings" className="underline hover:text-amber-900">
-            Settings
-          </Link>{" "}
-          to go live
+          <strong>Demo mode</strong> — Add HEYREACH_API_KEY and SMARTLEAD_API_KEY to environment variables to see live data
         </span>
       </div>
       <button
