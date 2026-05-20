@@ -1,5 +1,4 @@
 "use client";
-
 import useSWR from "swr";
 
 export type ConnectionStatus = "idle" | "testing" | "connected" | "failed";
@@ -27,39 +26,54 @@ const defaultState: ConnectionState = {
   googleSheets: { sheetUrl: "", status: "idle" },
 };
 
-// Get initial state from localStorage
 function getStoredState(): ConnectionState {
   if (typeof window === "undefined") return defaultState;
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      return {
-        ...defaultState,
-        ...parsed,
-      };
+      return { ...defaultState, ...parsed };
     }
-  } catch {
-    // Ignore errors
-  }
+  } catch {}
   return defaultState;
 }
 
-// Save state to localStorage
 function saveState(state: ConnectionState) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // Ignore errors
-  }
+  } catch {}
 }
 
-// Custom hook for connection state
+// Check if Vercel env vars are configured (via API route)
+async function checkServerConnection(): Promise<ConnectionState> {
+  try {
+    const res = await fetch("/api/check-connection");
+    const data = await res.json();
+
+    // If server has keys configured, override localStorage with connected status
+    if (data.heyreachConnected || data.smartleadConnected) {
+      const stored = getStoredState();
+      return {
+        ...stored,
+        heyReach: {
+          apiKey: data.heyreachConnected ? "configured-in-vercel" : stored.heyReach.apiKey,
+          status: data.heyreachConnected ? "connected" : stored.heyReach.status,
+        },
+        smartlead: {
+          apiKey: data.smartleadConnected ? "configured-in-vercel" : stored.smartlead.apiKey,
+          status: data.smartleadConnected ? "connected" : stored.smartlead.status,
+        },
+      };
+    }
+  } catch {}
+  return getStoredState();
+}
+
 export function useConnectionState() {
   const { data, mutate } = useSWR<ConnectionState>(
     "connection-state",
-    () => getStoredState(),
+    () => checkServerConnection(),
     {
       fallbackData: defaultState,
       revalidateOnFocus: false,
@@ -69,28 +83,19 @@ export function useConnectionState() {
   const state = data || defaultState;
 
   const updateHeyReach = (apiKey: string, status: ConnectionStatus) => {
-    const newState = {
-      ...state,
-      heyReach: { apiKey, status },
-    };
+    const newState = { ...state, heyReach: { apiKey, status } };
     saveState(newState);
     mutate(newState, false);
   };
 
   const updateSmartlead = (apiKey: string, status: ConnectionStatus) => {
-    const newState = {
-      ...state,
-      smartlead: { apiKey, status },
-    };
+    const newState = { ...state, smartlead: { apiKey, status } };
     saveState(newState);
     mutate(newState, false);
   };
 
   const updateGoogleSheets = (sheetUrl: string, status: ConnectionStatus) => {
-    const newState = {
-      ...state,
-      googleSheets: { sheetUrl, status },
-    };
+    const newState = { ...state, googleSheets: { sheetUrl, status } };
     saveState(newState);
     mutate(newState, false);
   };
