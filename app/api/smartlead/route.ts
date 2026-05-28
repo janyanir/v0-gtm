@@ -25,8 +25,8 @@ export async function GET() {
 
       if (statsRes.ok) {
         const stats = await statsRes.json();
-        totalEmailsSent += stats?.sent_count || stats?.emailsSent || 0;
-        totalReplies += stats?.reply_count || stats?.repliesReceived || 0;
+        totalEmailsSent += Number(stats?.sent_count || stats?.emailsSent || 0);
+        totalReplies += Number(stats?.reply_count || stats?.repliesReceived || 0);
       }
     }
 
