@@ -2,37 +2,38 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  if (!process.env.HEYREACH_API_KEY) {
+  if (!process.env.HEYREACH_MCP_KEY) {
     return NextResponse.json({ demo: true, reason: "no key" });
   }
 
-  const key = process.env.HEYREACH_API_KEY;
-  const BASE = "https://api.heyreach.io/api/public";
+  const mcpUrl = "https://mcp.heyreach.io/mcp?xMcpKey=" + process.env.HEYREACH_MCP_KEY;
 
   try {
-    const campRes = await fetch(BASE + "/campaign/GetAllCampaigns", {
-      method: "GET",
-      headers: { "X-API-KEY": key },
+    const res = await fetch(mcpUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/call",
+        params: {
+          name: "get_all_campaigns",
+          arguments: {}
+        }
+      }),
     });
 
-    const campText = await campRes.text();
+    const text = await res.text();
 
-    if (!campRes.ok) {
-      return NextResponse.json({
-        demo: true,
-        reason: "campaigns failed",
-        status: campRes.status,
-        body: campText,
-      });
+    if (!res.ok) {
+      return NextResponse.json({ demo: true, status: res.status, body: text });
     }
 
-    const campData = JSON.parse(campText);
-    const campaigns = campData?.items || campData?.campaigns || campData || [];
+    const data = JSON.parse(text);
 
     return NextResponse.json({
       demo: false,
-      campaignCount: Array.isArray(campaigns) ? campaigns.length : 0,
-      campaigns: campaigns,
+      raw: data,
     });
 
   } catch (e: any) {
